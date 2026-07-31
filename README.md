@@ -21,7 +21,8 @@
 12. [Docker 볼륨(데이터 영속성)](#12-docker-볼륨데이터-영속성)
 13. [Git 설정 및 GitHub / VSCode 연동](#13-git-설정-및-github--vscode-연동)
 14. [보안 및 개인정보 보호](#14-보안-및-개인정보-보호)
-15. [트러블슈팅](#15-트러블슈팅)
+15. [보너스 과제](#15-보너스-과제)
+16. [트러블슈팅](#16-트러블슈팅)
 
 ---
 
@@ -491,7 +492,181 @@ echo ".env" >> .gitignore     # >> : 파일 끝에 "추가" (>는 덮어쓰기�
 
 ---
 
-## 15. 트러블슈팅
+## 15. 보너스 과제
+
+---
+
+### 보너스 1. Docker Compose 기초
+
+> 📌 **배움 포인트**: docker-compose.yml은 한 마디로 여러 개의 컨테이너를 한꺼번에 정의하고 실행하기 위한 설계도이다. `docker run` 명령어를 매번 타이핑하는 대신, 실행 설정을 파일로 "문서화"할 수 있다. 팀원과 동일한 설정으로 실행하기 쉬워진다. services는 Docker Compose에서 실행할 컨테이너(서비스)들을 정의하는 영역이다.
+
+```yaml
+# docker-compose.yml
+services:
+  web:
+    # image : 사용할 이미지 (docker run의 마지막 인자와 동일)
+    image: mission-web:1.1
+
+    # ports : 포트 매핑 (docker run의 -p 옵션과 동일)
+    #   "호스트포트:컨테이너포트"
+    ports:
+      - "8080:80"
+```
+
+```bash
+docker compose up -d
+# Compose 파일을 읽어 서비스(컨테이너)를 실행
+#   -d : detached. 백그라운드로 실행
+
+docker compose ps
+# Compose로 실행 중인 서비스 목록 확인
+
+docker compose down
+# 실행 중인 서비스를 모두 중지하고 컨테이너/네트워크를 제거
+```
+
+![Docker Compose 기초](./images/16_docker_compose_basic.png)
+
+---
+
+### 보너스 2. Docker Compose 멀티 컨테이너
+
+> 📌 **배움 포인트**: 서비스 이름이 곧 컨테이너 간 호스트명이 된다. `web` 서비스에서 `db`로 접근할 때 IP 대신 서비스 이름을 그대로 사용 가능 → 서비스 디스커버리. 
+
+```yaml
+# docker-compose.yml
+services:
+  web:
+    image: mission-web:1.1
+    ports:
+      - "8080:80"
+    # depends_on : 지정한 서비스가 먼저 시작된 후 이 서비스를 실행
+    depends_on:
+      - db
+
+  db:
+    # 보조 서비스 예시: Redis (임시 데이터 저장소)
+    image: redis:alpine
+    # ports 를 열지 않으면 외부에서 접근 불가 → 내부 통신만 허용 (보안)
+```
+
+```bash
+docker compose up -d
+# 두 서비스(web + db)를 동시에 백그라운드로 실행
+
+docker compose ps
+# 두 컨테이너가 모두 실행 중인지 확인
+
+# 컨테이너 간 통신 확인: web 컨테이너에서 db 서비스 이름으로 ping
+docker compose exec web ping -c 3 db
+# exec : 실행 중인 서비스 컨테이너 안에서 명령 실행
+# ping -c 3 db : 'db' 라는 호스트명으로 3번 ping → 서비스 이름으로 통신 확인
+```
+
+![Docker Compose 멀티 컨테이너](./images/16_docker_compose_multi.png)
+
+---
+
+### 보너스 3. Compose 운영 명령어
+
+> 📌 **배움 포인트**: 운영 관점의 "상태 확인 루틴" — 실행/로그/상태/종료를 Compose 명령 하나로 관리.
+
+```bash
+docker compose up -d
+# 서비스 실행 (백그라운드)
+
+docker compose ps
+# 현재 서비스 상태 확인 (실행 중 / 중지 등)
+
+docker compose logs
+# 모든 서비스의 로그를 한번에 출력
+#   -f : follow. 실시간 로그 스트리밍 (Ctrl+C로 종료)
+#   서비스명을 뒤에 붙이면 해당 서비스만: docker compose logs web
+
+docker compose down
+# 서비스 중지 + 컨테이너/네트워크 제거
+#   --volumes : 볼륨까지 함께 삭제할 때 추가 (데이터 초기화 시 사용)
+```
+
+![Compose 운영 명령어](./images/16_docker_compose_ps.png)
+![Compose 운영 명령어](./images/16_docker_compose_down.png)
+
+---
+
+### 보너스 4. 환경 변수 활용
+
+> 📌 **배움 포인트**: 설정(포트, 모드 등)을 코드에 하드코딩하지 않고 외부에서 주입 → 같은 이미지를 dev/prod 환경에서 다르게 실행 가능. 
+
+```yaml
+# docker-compose.yml
+services:
+  web:
+    image: mission-web:1.1
+    ports:
+      - "8080:80"
+    # environment : 컨테이너 안에 환경 변수 주입
+    #   Dockerfile의 ENV(이미지를 빌드할 때 기본 환경변수)와 달리, 실행 시점에 동적으로 값을 바꿀 수 있음
+    environment:
+      - APP_ENV=development
+      - APP_PORT=80
+```
+
+```bash
+# 또는 .env 파일로 관리 (민감정보는 .gitignore에 추가)
+# .env 내용 예시:
+#   APP_ENV=development
+#   APP_PORT=80
+
+docker compose up -d
+# Compose가 자동으로 .env 파일을 읽어 환경 변수로 주입
+
+docker compose exec web env | grep APP
+# 실행 중인 web 컨테이너 안에서 APP_으로 시작하는 환경변수를 확인하는 명령어
+#   env  : 환경 변수 전체 출력
+#   | grep APP : 파이프(|)로 전달해 APP 포함 줄만 필터링
+```
+
+![환경 변수 활용](./images/16_docker_compose_environment.png)
+
+---
+
+### 보너스 5. GitHub SSH 키 설정
+
+> 📌 **배움 포인트**: HTTPS는 매번 토큰 입력이 필요하지만, SSH 키를 등록하면 인증 없이 push/pull 가능 → 보안성과 편의성을 동시에.
+
+```bash
+# 1) SSH 키 생성
+ssh-keygen -t ed25519 -C "you@example.com"
+# -t ed25519 : 키 타입 (ed25519 = 현재 권장 알고리즘, RSA보다 짧고 안전)
+# -C : comment. 키 식별용 이메일 라벨
+# 생성 위치: ~/.ssh/id_ed25519 (개인키) / ~/.ssh/id_ed25519.pub (공개키)
+
+# 2) 공개키 확인 (GitHub에 등록할 내용)
+cat ~/.ssh/id_ed25519.pub
+# 이 내용을 복사해서 GitHub에 붙여넣기
+# ※ .pub(공개키)만 공유. 개인키(id_ed25519)는 절대 노출 금지
+
+# 3) GitHub에 등록
+# GitHub → Settings → SSH and GPG keys → New SSH key → 공개키 붙여넣기
+
+# 4) 연결 테스트
+ssh -T git@github.com
+# -T : 터미널 할당 없이 테스트만 수행
+# 성공 시: "Hi username! You've successfully authenticated..."
+
+# 5) 저장소 remote URL을 SSH 방식으로 변경
+git remote set-url origin git@github.com:<username>/<repo>.git
+# set-url : 기존 remote URL을 교체 (HTTPS → SSH)
+
+git remote -v
+# -v : verbose. 현재 등록된 remote URL 확인
+```
+
+> 📸 **[캡처 #16]** (선택) `ssh -T git@github.com` 성공 메시지 화면
+
+---
+
+## 16. 트러블슈팅
 
 > 실제 미션 수행 중 마주친 오류 → 원인 → 해결 과정을 기록했습니다.
 
