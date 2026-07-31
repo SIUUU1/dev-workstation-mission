@@ -108,7 +108,7 @@ cat notes.txt
 
 rm notes.txt
 # remove. 파일 삭제
-#   ※ 디렉토리 삭제는 rm -r (재귀), 강제 삭제는 rm -rf → -f(force)는 신중히 사용
+#   ※ 디렉토리 삭제는 rm -r (폴더와 내부 내용 삭제), 강제 삭제는 rm -rf → -f(force)는 신중히 사용
 ```
 
 > 📸 **터미널 기본 조작**
@@ -234,7 +234,7 @@ exit        # 셸 종료 → 컨테이너도 함께 종료됨
 > 📸 **ubuntu 컨테이너 실습**
 ![컨테이너 실습](./images/07_ubuntu_exec.png)
 
-### attach vs exec 차이 (직접 관찰 정리)
+### attach vs exec 차이
 
 ```bash
 docker run -d --name bg-ubuntu ubuntu sleep infinity
@@ -243,12 +243,20 @@ docker run -d --name bg-ubuntu ubuntu sleep infinity
 # sleep infinity : 컨테이너가 바로 안 꺼지도록 무한 대기시키는 트릭
 
 docker exec -it bg-ubuntu bash
+ps -ef # 현재 실행 중인 모든 프로세스를 자세히 확인
+exit 
+docker ps
 # 실행 중인 컨테이너에 "새 프로세스(bash)"를 붙여 진입.
 # → 여기서 exit 해도 원래 컨테이너는 계속 살아있음 ✅
 # 내가 들어간 문은 메인 방의 생명줄과 상관없는 '새로운 통로'.
 # exit를 입력하고 나와도, 원래 방(컨테이너)과 안에서 돌고 있던 메인 프로세스는 아무런 타격 없이 계속 작동
 
 docker attach bg-ubuntu
+Ctrl+C
+docker exec bg-ubuntu ps -ef # 현재 실행 중인 모든 프로세스를 자세히 확인
+docker top bg-ubuntu #컨테이너에서 실행 중인 프로세스를 확인
+docker stop bg-ubuntu
+docker ps -a
 # 컨테이너의 "메인 프로세스"에 직접 연결.
 # → 여기서 Ctrl+C 등으로 나가면 메인 프로세스가 죽어 컨테이너도 종료될 수 있음 ⚠️
 # 현재 컨테이너의 목숨줄인 '메인 프로세스' 화면을 그대로 보고 있음.
@@ -256,6 +264,9 @@ docker attach bg-ubuntu
 ```
 
 > **관찰 요약**: `exec`는 별도 프로세스라 나가도 컨테이너가 유지되고, `attach`는 메인 프로세스에 붙는 것이라 조작에 따라 컨테이너가 종료될 수 있다.
+> 📸 **attach vs exec 차이**
+![attach vs exec 차이](./images/08_exec.png)
+![attach vs exec 차이](./images/08_attach.png)
 
 ---
 
