@@ -49,7 +49,7 @@
 | Git | 2.53.0 |
 
 > 📸 **OrbStack 실행 화면**
-![OrbStack 실행 화면](./images/01_orbstack.png)
+![OrbStack 실행 화면](./images/01_orbstack1.png)
 
 ---
 
@@ -662,7 +662,8 @@ git remote -v
 # -v : verbose. 현재 등록된 remote URL 확인
 ```
 
-> 📸 **[캡처 #16]** (선택) `ssh -T git@github.com` 성공 메시지 화면
+![GitHub SSH 키 설정](./images/16_git_ssh_key.png)
+![Git remote](./images/16_git_remote.png)
 
 ---
 
