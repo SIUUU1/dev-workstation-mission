@@ -251,14 +251,18 @@ docker ps
 # 내가 들어간 문은 메인 방의 생명줄과 상관없는 '새로운 통로'.
 # exit를 입력하고 나와도, 원래 방(컨테이너)과 안에서 돌고 있던 메인 프로세스는 아무런 타격 없이 계속 작동
 
-docker attach bg-ubuntu
-Ctrl+C  #종료
-docker exec bg-ubuntu ps -ef # 현재 실행 중인 모든 프로세스를 자세히 확인
-docker top bg-ubuntu #컨테이너에서 실행 중인 프로세스를 확인
-docker stop bg-ubuntu
+#--------------------------------------#
+docker run -it --name test-ubuntu ubuntu bash
+docker attach test-ubuntu
+ps -ef #프로세스 정보 확인
+Ctrl + Q  #종료
+docker ps -a
+
+docker attach test-ubuntu
+exit #종료
 docker ps -a
 # 컨테이너의 "메인 프로세스"에 직접 연결.
-# → 여기서 Ctrl+C 등으로 나가면 메인 프로세스가 죽어 컨테이너도 종료될 수 있음 ⚠️
+# → 여기서 exit 등으로 나가면 메인 프로세스가 죽어 컨테이너도 종료될 수 있음 ⚠️
 # 현재 컨테이너의 목숨줄인 '메인 프로세스' 화면을 그대로 보고 있음.
 # 안전하게 탈출: Ctrl + P를 누른 상태에서 이어서 Q를 누르는 특수 단축키(Ctrl + P, Q)를 사용
 ```
@@ -266,7 +270,7 @@ docker ps -a
 > **관찰 요약**: `exec`는 별도 프로세스라 나가도 컨테이너가 유지되고, `attach`는 메인 프로세스에 붙는 것이라 조작에 따라 컨테이너가 종료될 수 있다.
 > 📸 **attach vs exec 차이**
 ![attach vs exec 차이](./images/08_exec.png)
-![attach vs exec 차이](./images/08_attach.png)
+![attach vs exec 차이](./images/08_attach1.png)
 
 ---
 
