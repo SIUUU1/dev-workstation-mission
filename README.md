@@ -525,6 +525,7 @@ docker compose down
 # 실행 중인 서비스를 모두 중지하고 컨테이너/네트워크를 제거
 ```
 
+> 📸 **Docker Compose 기초**
 ![Docker Compose 기초](./images/16_docker_compose_basic.png)
 
 ---
@@ -563,6 +564,7 @@ docker compose exec web ping -c 3 db
 # ping -c 3 db : 'db' 라는 호스트명으로 3번 ping → 서비스 이름으로 통신 확인
 ```
 
+> 📸 **Docker Compose 멀티 컨테이너**
 ![Docker Compose 멀티 컨테이너](./images/16_docker_compose_multi.png)
 
 ---
@@ -588,6 +590,7 @@ docker compose down
 #   --volumes : 볼륨까지 함께 삭제할 때 추가 (데이터 초기화 시 사용)
 ```
 
+> 📸 **Compose 운영 명령어**
 ![Compose 운영 명령어](./images/16_docker_compose_ps.png)
 ![Compose 운영 명령어](./images/16_docker_compose_down.png)
 
@@ -626,6 +629,7 @@ docker compose exec web env | grep APP
 #   | grep APP : 파이프(|)로 전달해 APP 포함 줄만 필터링
 ```
 
+> 📸 **Compose 환경 변수 활용**
 ![환경 변수 활용](./images/16_docker_compose_environment.png)
 
 ---
@@ -662,6 +666,7 @@ git remote -v
 # -v : verbose. 현재 등록된 remote URL 확인
 ```
 
+> 📸 **GitHub SSH 키 설정**
 ![GitHub SSH 키 설정](./images/16_git_ssh_key.png)
 ![Git remote](./images/16_git_remote.png)
 
