@@ -252,7 +252,7 @@ docker ps
 # exit를 입력하고 나와도, 원래 방(컨테이너)과 안에서 돌고 있던 메인 프로세스는 아무런 타격 없이 계속 작동
 
 docker attach bg-ubuntu
-Ctrl+C
+Ctrl+C  #종료
 docker exec bg-ubuntu ps -ef # 현재 실행 중인 모든 프로세스를 자세히 확인
 docker top bg-ubuntu #컨테이너에서 실행 중인 프로세스를 확인
 docker stop bg-ubuntu
